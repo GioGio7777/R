@@ -1,0 +1,185 @@
+---
+title: "R Tarih ve saat"
+output: html_notebook
+---
+
+[R da Tarihlerin yer aldigi bir kopya kagidi](https://www.stat.berkeley.edu/~s133/dates.html)
+
+# R da tarih ve saat islemleri
+```{r}
+
+library(lubridate)
+
+today()
+
+now()
+
+```
+
+
+## 1. Tarih değişkenleri ile basa cikmak
+
+### 1.1 Editor ile veri okuturken tarih degiskenleri ile basa cikmak
+
+```{r}
+
+df_bir <- data.frame( yas = c(10,11,30),
+                      boy = c(120,150,160),
+                      dogum = c("20100201","20110506","20090330"))
+
+df_iki <- data.frame( yas = c(10,11,30),
+                      boy = c(120,150,160),
+                      dogum = c("2010_02_01","2011_05_06","2009_03_30"))
+
+df_uc <- data.frame( yas = c(10,11,30),
+                      boy = c(120,150,160),
+                      dogum = c("01022010","06052011","30032009"))
+
+
+df <- data.frame(df_bir,df_iki,df_uc)
+
+library(readr)
+
+write_csv(df,"df.csv")
+
+
+
+
+```
+
+#### **Tarih okunurken karakterlerin formatına dikkat etmemiz lazım**
+
+
+### 1.2 String ifadelerden Tarih/Zaman olusturma
+
+
+```{r}
+
+library(lubridate)
+
+tarih <- "19980417"
+
+
+df$dogum <- ymd(df$dogum) # verisetine uygulama
+
+
+ymd(tarih)
+
+mdy("02242018")
+
+dmy("22012018")
+
+ymd("2018_02_18")
+
+mdy("February 18st,1989") 
+
+ymd_hms("20120101 16:25:42")
+
+ymd_hm("20120101 19:03")
+
+ymd_h("20120101 22")
+
+```
+
+#### **!lubridate kütüphanesinde eğer tarih formatını doğru girersek aradaki ayraçlara dikkat etmemize gerek yok**
+
+### 1.3 Degiskenler Uzerinden Olusturma
+
+```{r}
+install.packages("nycflights13")
+```
+
+```{r}
+library(nycflights13)
+library(dplyr)
+
+flights %>% 
+  select(year,month,day,hour,minute)
+
+flights %>% 
+  select(year,month,day) %>%
+  mutate(tarih = make_date(year,month,day))
+
+
+flights %>% 
+  select(year,month,day,hour,minute) %>%
+  mutate(tarih = make_datetime(year,month,day))
+
+
+```
+
+
+## 2.Tarih zaman bilesenleri
+
+```{r}
+
+t_s <- ymd_hms("20120605 13:45:30")
+
+year(t_s)
+
+month(t_s)
+
+day(t_s)
+
+mday(t_s)
+
+yday(t_s)
+
+wday(t_s)
+
+hour(t_s)
+
+minute(t_s)
+
+second(t_s)
+
+```
+
+
+## 3. Zaman araliklari (time spans)
+
+
+
+### Saniye cinsinden
+
+```{r}
+
+as.duration(1)
+
+dseconds(16)
+
+dminutes(100)
+
+dhours(10)
+
+ddays(12)
+
+dweeks(13)
+
+dyears(5)
+
+```
+
+### Gunluk kullanim
+
+```{r}
+
+seconds(15)
+
+minutes(10)
+
+hours(45)
+
+days(7)
+
+
+months(1:6)
+
+weeks(2)
+
+years(13)
+
+```
+
+
+
