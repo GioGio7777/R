@@ -1,0 +1,68 @@
+---
+title: "r_markdown_bicimlendirme_2"
+author: "Yusuf Celik"
+date: '2022-05-08'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Numaralandırma 
+Numaralandırma için diyes isareti kullanilir. bu isarette # en büyük basliktir.
+
+## Alt baslik
+
+## Alt baslik 2 
+
+# Kalin yazi yazma
+
+**kalin yazi**
+
+__kalin__
+
+# Italik yazma
+
+*bu bir italik yazidir* 
+
+baska var mi ? var o da _budur_
+
+~~ustu cizildi~~
+
+# Link verme
+
+[link](https://www.youtube.com/)
+
+--
+
+---
+
+...
+
+# Menuleme
+
+* menu 1
+* menu 2
+
+1. Menu
+2. Menu
+
+
+# Denklem ekleme
+
+$A = \pi*r^{2}$
+
+$$\int x^2 dx=\frac{x^3}{3} + c$$
+
+
+---
+
+[Mathematics in R Markdown](https://rpruim.github.io/s341/S19/from-class/MathinRmd.html)
+
+---
+
+
+# Resim ekleme
+
+![](https://i.pinimg.com/736x/f3/3f/14/f33f14b6423cd85a8b701aedb5a9c692.jpg)
