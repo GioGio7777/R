@@ -1,0 +1,221 @@
+---
+title: "Veri Manipulasyonu"
+output: html_notebook
+editor.options:
+  chunk_output_type:console
+---
+# Veri Manipulasyonu
+
+* select(): degisken secimi
+* filter(): gozlem secimi
+* mutate(): degisken olusturma
+* summarise(): ozet istatistikler
+* group_by(): gruplama
+* left_join(): birlestirme islemleri
+
+## 0. Veri Seti
+
+**nycflights13 new york city e ait 2013 yilinin ucus verileri**
+
+```{r}
+
+library(dplyr)
+library(nycflights13)
+
+
+df<- flights
+
+df
+
+str(df)
+
+summary(df)
+
+```
+
+
+
+```{r}
+
+df %>% 
+  select(dep_delay,day,carrier)%>%
+  filter(dep_delay>10)%>%
+  group_by(carrier) %>%
+  summarise(n=n(),ortalama = mean(dep_delay))
+
+```
+
+## 1. Degisken islemleri select()
+
+### select()
+
+```{r}
+
+select(df,carrier,flight,tailnum)
+
+select(df,carrier,origin:hour) # originden houra kadar secer
+
+select(df,1:3)
+
+select(df,-carrier) # -carrier carrier i atar
+
+select(df,-c(tailnum,carrier))
+
+```
+
+
+### contains()
+
+```{r}
+
+select(df,contains("time")) # dfdeki time iceren değerleri alir
+
+```
+
+### starts_with()
+
+```{r}
+
+select(df,starts_with("dep"))
+
+```
+
+### ends_with()
+
+```{r}
+
+select(df,ends_with("delay"))
+
+```
+
+### num_range()
+
+```{r}
+
+m <- matrix(1:25,5,5)
+
+colnames(m) <- paste("x",1:5,sep="")
+
+select(as.data.frame(m),num_range("x",1:3))
+
+```
+
+
+```{r}
+
+select(df,carrier,tailnum,contains("time"))
+
+```
+
+## 2. Gozlem Islemleri: filter()
+
+### filter()
+
+```{r}
+
+```
+ 
+### arrange()
+
+```{r}
+
+```
+### sample_frac()
+
+```{r}
+
+```
+### sample_n()
+
+```{r}
+
+```
+### slice()
+
+```{r}
+
+```
+### top_n()
+```{r}
+
+```
+
+## 3. Degisken Donusum Islemleri:mutate()
+
+### rename()
+```{r}
+
+```
+
+### transmute()
+```{r}
+
+```
+
+## 4. Gruplama: group_by()
+```{r}
+
+```
+## 5.Veri Ozetleme():summarise()
+
+### counts()
+```{r}
+
+```
+### mean(), median(), sum(), sd(), var()
+```{r}
+
+```
+### first(), last(), nth()
+```{r}
+
+```
+### quantile(), min(), max()
+```{r}
+
+```
+## 6.Join Islemleri
+
+### left_join()
+```{r}
+
+```
+### right_join()
+```{r}
+
+```
+### inner_join()
+```{r}
+
+```
+### full_join()
+```{r}
+
+```
+## 7.Tidy Data
+
+### gathering and sprading
+
+#### gathering
+```{r}
+
+```
+#### spreading
+```{r}
+
+```
+### seperating and uniting
+
+#### seperating
+```{r}
+
+```
+#### unite
+```{r}
+
+```
+
+
+
+
+
