@@ -13,6 +13,8 @@ editor.options:
 * group_by(): gruplama
 * left_join(): birlestirme islemleri
 
+## **_[Tidy Data Nedir?](https://www.veribilimiokulu.com/python-ile-tidy-data/)_**
+
 ## 0. Veri Seti
 
 **nycflights13 new york city e ait 2013 yilinin ucus verileri**
@@ -45,7 +47,7 @@ df %>%
 
 ```
 
-## 1. Degisken islemleri select()
+## 1. Degisken islemleri
 
 ### select()
 
@@ -107,56 +109,139 @@ select(df,carrier,tailnum,contains("time"))
 
 ```
 
-## 2. Gozlem Islemleri: filter()
+## 2. Gozlem Islemleri
 
 ### filter()
 
 ```{r}
 
+filter(df,year == 2013 & month == 2)
+
+filter(df, dep_time == 456 )
+
+
+filter(df,dep_time>1000)
+
+
+df %>%
+  filter(dep_delay>1000) %>%
+  select(carrier,year)
+
+
+
+filter(df,dep_delay > mean(df$dep_delay,na.rm = TRUE))
+
+filter(df,dep_delay > mean(df$dep_delay,na.rm = TRUE) + sd(df$dep_delay,na.rm=TRUE))
+
+
+
 ```
  
-### arrange()
+### arrange() büyükten küçüğe küçükten büyüğe sıralar
 
 ```{r}
+
+a <- select(df,dep_delay,month,day)
+
+b <- arrange(a,desc(dep_delay),month,day)
+
+c <- filter(b,dep_delay > 0)
+
+c
 
 ```
-### sample_frac()
+**yukarıdaki kodun aynısını pipe kullanarakta yazabililiz**
+**Aşagıdaki örnekte pipe kullanılmıştır çıktısı aynıdır**
 
 ```{r}
+
+df %>%
+  select(dep_delay,month,day)%>%
+  arrange(desc(dep_delay),month,day) %>%
+  filter(dep_delay > 0)
+```
+### sample_frac() -> belirli oranda değişken seçimi yapar rasgeledir  0 ile 1 arasındadır
+
+```{r}
+
+df %>%
+  sample_frac(0.05)
 
 ```
-### sample_n()
+### sample_n() belirli değerde değişken seçimi yapar rasgeledir
 
 ```{r}
+
+df %>%
+  sample_n(100)
 
 ```
 ### slice()
 
 ```{r}
 
+df %>%
+  slice(100:200)
+
 ```
 ### top_n()
 ```{r}
+df %>%
+  top_n(10)
+```
+
+## 3. Degisken Donusum Islemleri
+
+###mutate -> yeni değişken oluşturur ama eskisini silmez
+```{r}
+
+sample <- df%>% 
+  sample_n(1000)%>%
+  select(arr_delay,dep_delay,distance,arr_time)
+
+
+mutate(sample,
+       kazanc = arr_delay - dep_delay,
+       hiz = (distance / arr_time) * 60,
+       yeni = kazanc/hiz)
+  
 
 ```
 
-## 3. Degisken Donusum Islemleri:mutate()
 
 ### rename()
 ```{r}
 
+rename(df,
+       varis_gecikmesi = arr_delay,
+       kalkis_gecikmesi = dep_delay)
+
 ```
 
-### transmute()
+### transmute() -> yeni değişkenler oluşturur ve eskileri siler 
 ```{r}
+
+transmute(sample,
+       kazanc = arr_delay - dep_delay,
+       hiz = (distance / arr_time) * 60,
+       yeni = kazanc/hiz)
 
 ```
 
 ## 4. Gruplama: group_by()
 ```{r}
 
+df %>%
+  group_by(carrier) %>%
+  summarise(ucus_sayisi= n(),
+            ortalama = mean(dep_delay,na.rm = TRUE),
+            medyan = median(dep_delay, na.rm = TRUE),
+            sd = sd(dep_delay, na.rm = TRUE),
+            var = var(dep_delay, na.rm = TRUE),
+            ort_uzaklik = mean(distance,na.rm = TRUE))
+
 ```
-## 5.Veri Ozetleme():summarise()
+## 5.Veri Ozetleme()
 
 ### counts()
 ```{r}
@@ -193,29 +278,88 @@ select(df,carrier,tailnum,contains("time"))
 
 ```
 ## 7.Tidy Data
+[Gather Spread Seperate Unite nedir ?](https://datascienceplus.com/spread-gather-separate-and-unite-variables-and-datasets-in-r/)
+```{r}
+install.packages("tidyverse")
+```
+
+
+```{r}
+library(tidyverse)
+
+table1 #bozuk bir tablo değildir ama kalan diğer tablolar bozuktur onları düzeltmeye çalışacağız.
+
+table
+
+table3
+
+table4a
+
+table4b
+```
+
 
 ### gathering and sprading
 
-#### gathering
+#### gathering -> yukarıdakileri aşağı çekti
 ```{r}
+table4a %>%
+  gather(`1999`,`2000`,key= "year",value = "cases")
 
 ```
-#### spreading
+
+
 ```{r}
+table4b %>%
+  gather(`1999`,`2000`,key= "year",value = "population")
+```
+
+
+```{r}
+tab1 <- table4a %>%
+  gather(`1999`,`2000`,key= "year",value = "cases")
+
+tab2 <- table4b %>%
+  gather(`1999`,`2000`,key= "year",value = "population")
+
+
+left_join(tab1,tab2)
 
 ```
+
+
+#### spreading -> gatherin tersi
+```{r}
+
+table2
+
+spread(table2,key="type",value="count")
+
+```
+![](https://i1.wp.com/www.gis-blog.com/wp-content/uploads/2015/05/spreadVSgather.png)
+
 ### seperating and uniting
 
 #### seperating
 ```{r}
 
+table3
+
+table3 %>%
+  separate(rate,into = c("cases","population"),sep="/",convert = TRUE)
+
+table3 %>%
+  separate(rate,into = c("cases","population"),sep="/",convert = TRUE) %>%
+  mutate(rate = cases / population)
 ```
 #### unite
 ```{r}
 
+table5 
+
+table5 %>%unite(new,century,year,sep="")
+
 ```
-
-
-
+![](https://ecoquants.com/nps-r-workshop/figs/rstudio-cheatsheet-reshaping-data.png)
 
 
