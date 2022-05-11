@@ -5,6 +5,8 @@ output: html_notebook
 
 # Veri görselleştirme
 
+## [Grafikler nelerdir ve hangsini ne zaman kullanmalıyım](https://www.intellspot.com/types-graphs-charts/)
+
 ```{r}
 library(tibble)
 library(dplyr)
@@ -16,7 +18,7 @@ df <- tibble(
   sure = c(100,180)
 )
 
-
+# aes değişken belirtiyoruz
 ggplot(data=df,aes(x=kullanim,y=sure,fill=kullanim)) +
         geom_bar(colour = "black",fill = "orange",stat="identity")+
   guides(fill=FALSE) +
@@ -208,15 +210,46 @@ df <- tibble(
 
 #### Scatter-plot
 
+[geom_smooth()](https://ggplot2.tidyverse.org/reference/geom_smooth.html)
+
 ```{r}
+
+ggplot(df,aes(m,w,colour=cinsiyet)) + # aes değişken belirtiyoruz
+  geom_point()
+
+ggplot(df,aes(m,w)) + 
+  geom_point() +
+  geom_smooth(method=lm )
+
+ggplot(df,aes(m,w)) + 
+  geom_point() +
+  geom_smooth(method=lm,se=FALSE )
+
+ggplot(df,aes(m,w)) + 
+  geom_point() +
+  geom_smooth()
+
+
+ggplot(df,aes(m,w,colour=cinsiyet)) +
+  geom_point() +
+  geom_smooth(method=lm,se =FALSE)
+
 
 ```
 
 ### 2.2 Kesikli X Sürekli Y
 
-#### Sütün Graik(geom_bar)
+#### Sütün Grafik(geom_bar)
 
 ```{r}
+
+df <- tibble(
+  kullanim = factor(c("hi","hs"),levels=c("hi","hs")),
+  sure=c(100,180)
+)
+
+ggplot(df,aes(kullanim,sure,fill=kullanim )) +
+  geom_bar(color="black",fill="orange",stat="identity")
 
 ```
 
@@ -224,17 +257,31 @@ df <- tibble(
 
 ```{r}
 
+df <- tibble(
+  cinsiyet = factor(rep(c("E","K"),each = 500)),
+  sure = c(rnorm(500,mean = 80),rnorm(500,mean = 81)))
+
+ggplot(df,aes(x = cinsiyet, y = sure,fill = cinsiyet)) +
+  geom_boxplot()+
+  guides(fill=FALSE) 
+
+
+
 ```
 
 #### Dot Plot (geom_dotplot)
 
 ```{r}
+ggplot(df,aes(x = cinsiyet, y = sure,fill = cinsiyet)) +
+geom_dotplot(binaxis = "y",stackdir = "center")
 
 ```
 
 #### Violin (geom_violin)
 
 ```{r}
+ggplot(df,aes(x = cinsiyet, y = sure,fill = cinsiyet)) +
+geom_violin(scale = "area")
 
 ```
 
@@ -242,11 +289,37 @@ df <- tibble(
 
 ```{r}
 
+df <- tibble(
+  kullanim =factor(c("hi","hs","hi","hs"),levels=c("hi","hs")),
+  sure = c(100,140,90,200),
+  cinsiyet = factor(c("E","E","K","K"))
+)
+
+ggplot(df,aes(kullanim,cinsiyet)) +
+  geom_count()
+
 ```
 
 ## 3.Grafik Bölme
 
 ```{r}
+df <- tibble(
+  c = factor(rep(c("E","K"),each=600)),
+  m = c(rnorm(600,mean = 80),rnorm(600,mean = 82)),
+  w = c(rnorm(600,mean = 82),rnorm(600,mean = 81)),
+  me = factor(rep(c("A","B","C"),each = 400)))
+
+
+t <- ggplot(df,aes(m,w)) + geom_point()
+
+t +facet_grid(. ~ c)
+t +facet_grid(c ~ .)
+t +facet_grid(me ~ c)
+
+
+
+
+
 
 ```
 
@@ -254,10 +327,110 @@ df <- tibble(
 
 ```{r}
 
+head(economics)
+
+d <- economics
+
+ggplot(d,aes(date,pop)) +
+  geom_line()
+
+s <- d %>%
+  filter(date> as.Date("2010-1-1"))
+
+ggplot(s,aes(date,pop)) +
+  geom_line()
+
+
+
+ggplot(d,aes(date,pop)) +
+  geom_line(aes(size = unemploy/pop, colour = unemploy/pop))
+
+
+
+
+# mix two graph
+ggplot() +
+  geom_line(data = d , aes(x=date,y = pop),color = "blue")+
+   geom_line(data = d , aes(x=date,y = unemploy),color = "red")
+  
+
 ```
 
 ## 5.Coklu,Zaman Serisi Gorselleştirme
 
 ```{r}
 
+library(tidyr)
+df <-  economics %>%
+  select(date,psavert,uempmed) %>%
+  gather(key = "variable",value = "value",-date)
+
+df
+
+
+
+ggplot(df,aes(date,value)) +
+  geom_line(aes(color = variable),size = 1)
+
+
+ggplot(df,aes(date,value)) +
+  geom_area(aes(color = variable,fill = variable),alpha = .5,position = position_dodge(0.8))
+
+
+
 ```
+
+
+
+## Pekistirme Uygulamaları
+
+```{r}
+
+mtcars
+
+d <- diamonds
+
+summary(d)
+
+str(d)
+
+```
+
+
+
+```{r}
+
+# Ürünlerin fiyat aralığı nedir ?
+ggplot(d,aes(price)) +
+  geom_histogram(bidwth = .5)
+
+
+d %>%
+  group_by(cut) %>% 
+  summarise(n = n(),ortalama_fiyat = mean(price))
+
+d %>%
+  group_by(color) %>% 
+  summarise(n = n(),ortalama_fiyat = mean(price))
+
+d %>%
+  group_by(clarity) %>% 
+  summarise(n = n(),ortalama_fiyat = mean(price))
+
+
+k <- d %>%
+      group_by(color) %>% 
+      summarise(n = n(),ortalama_fiyat = mean(price))
+
+ggplot(k,aes(color,ortalama_fiyat,fill = n)) +
+  geom_bar(stat = "identity")
+  
+
+
+ggplot(d,aes(price,fill = color)) +
+  geom_density()
+
+  geom_histogram(binwidth = .5,alpha = .5, position = "identity")
+```
+
+**Histogramda ilk yoğunluğu oluşturan color-ortalama_fiyat yoğunluk grafiğine bakansak E dir**
