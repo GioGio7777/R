@@ -1,0 +1,263 @@
+---
+title: "Veri Görselleştirme"
+output: html_notebook
+---
+
+# Veri görselleştirme
+
+```{r}
+library(tibble)
+library(dplyr)
+library(ggplot2)
+
+
+df <- tibble(
+  kullanim = factor(c("hi","hs"),levels=c("hi","hs")),
+  sure = c(100,180)
+)
+
+
+ggplot(data=df,aes(x=kullanim,y=sure,fill=kullanim)) +
+        geom_bar(colour = "black",fill = "orange",stat="identity")+
+  guides(fill=FALSE) +
+  xlab("Hafta İçi - Hafta Sonu") + ylab("Kullanilma Suresi") +
+  ggtitle("Telefon Kullanim İstatistikleri")
+
+```
+
+```{r}
+
+
+a <- ggplot(data=df,aes(x=kullanim,y=sure,fill=kullanim))
+
+
+  a + geom_bar(stat="identity")                      
+
+```
+
+### 1.1 Kesikli Degisken
+
+**Eğer kesikli bir değişken barplot gosterilecek ise iki şekilde yapırlır birincisi frekans a göre ikincisi mutlak değere göre.**
+
+```{r}
+df <- tibble(
+  kullanim = c(rep("hi",20),rep("hs",10)))
+
+df <- tibble(
+  kullanim = factor(c("hi","hs"),levels=c("hi","hs")),
+  sure = c(100,180)
+)
+
+
+
+```
+
+#### Sütun Grafik
+
+```{r}
+
+ggplot(df,aes(x=kullanim,y=sure)) +
+  geom_bar(stat="identity")
+
+```
+
+#### Cizgi Grafik
+
+```{r}
+df <- tibble(
+  kullanim = factor(c("hi","hs"),levels=c("hi","hs")),
+  sure = c(100,180)
+)
+
+ggplot(df,aes(x=kullanim,y=sure,group = 1)) +
+  geom_line()
+
+```
+
+```{r}
+
+ggplot(df,aes(x=kullanim,y=sure,group = 1)) +
+  geom_point()
+
+```
+
+```{r}
+
+ggplot(df,aes(x=kullanim,y=sure,group = 1)) +
+  geom_line(colour = "red",linetype = "dashed",size = 1.6) +
+  geom_point(colour = "red",size = 4, shape = 21 , fill = "white") +
+  expand_limits(y=0)
+
+```
+
+#### Pasta Grafik
+
+```{r}
+
+# https://r-graph-gallery.com/pie-plot.html
+
+```
+
+### 1.2 Sürekli Degisken
+
+```{r}
+df <- tibble(
+  cinsiyet = factor(rep(c("E","K"),each = 500)),
+  sure = c(rnorm(500,mean = 80),rnorm(500,mean = 81)))
+
+df
+
+```
+
+#### Histogram(geom_histogram)
+
+```{r}
+
+ggplot(df,aes(sure)) +
+  geom_histogram(binwidth = .5,colour = "black",fill = "orange")+
+  xlab("Sure Dağılımı") + 
+  ylab("Frekans") +
+  ggtitle("Histogram Grafiği")
+
+
+
+ggplot(df,aes(sure))+
+  geom_density()
+
+
+
+ggplot(df,aes(sure)) +
+  geom_histogram(aes(y = ..density..),binwidth = 0.5,colour = "black" , fill = "orange")+ # yoğunluğa endeksledik
+  geom_density(alpha = .3,fill="black")
+
+```
+
+##### Kirilimlara göre Histogram ve Yoğunluk Grafiği
+
+```{r}
+
+ggplot(df,aes(sure,fill=cinsiyet)) +
+  geom_histogram(binwidth = .5,alpha=.5,position = "identity")
+
+ggplot(df,aes(sure,fill=cinsiyet)) +
+  geom_density(alpha=1,position = "identity")
+
+```
+##### Kırılımları iki ayrı grafikte gostermek için facet_grid()
+```{r}
+ggplot(df,aes(sure)) +
+  geom_histogram(binwidth = .5,colour = "black", fill =   "orange")+
+  facet_grid(cinsiyet ~ . )
+
+```
+
+#### Box Plot(geom_boxplot) -> Aykırı durumları gözlemlemek için kullanılır
+
+**Ortasındaki çizgi ortalamadır ve alt üst alanlar sapma değerleridir**
+
+**! Candlestick grafiğine benzer ama candlestick finans için yaratılmış özel bir grafiktir**
+
+![](https://www.newtraderu.com/wp-content/uploads/2020/06/1200px-Candlestick_chart_scheme_03-en.svg-1024x683.png)
+
+```{r}
+
+ggplot(df,aes(x = cinsiyet, y = sure,fill = cinsiyet)) +
+  geom_boxplot()+
+  guides(fill=FALSE) +
+  coord_flip() # eksenleri ters çevirir
+
+```
+
+#### Alan Grafik(geom_area)
+
+```{r}
+
+ggplot(df,aes(sure)) +
+  geom_area(stat="bin")
+
+```
+
+#### Frekans Grafiği(geom_freqpoly)
+
+```{r}
+ggplot(df,aes(sure)) +
+  geom_freqpoly()
+
+```
+
+#### Dotplot
+
+```{r}
+
+ggplot(df,aes(sure)) +
+  geom_dotplot()
+
+```
+
+## 2.İki degiskenli Gorsellestirme
+```{r}
+
+df <- tibble(
+  cinsiyet = factor(rep(c("E","K"),each = 500)),
+  m = c(rnorm(500,mean = 80),rnorm(500,mean = 82)),
+  w = c(rnorm(500,mean = 82),rnorm(500,mean = 81)))
+
+```
+
+### 2.1 Sürekli X Sürekli Y
+
+#### Scatter-plot
+
+```{r}
+
+```
+
+### 2.2 Kesikli X Sürekli Y
+
+#### Sütün Graik(geom_bar)
+
+```{r}
+
+```
+
+#### Box Plot (geom_boxplot)
+
+```{r}
+
+```
+
+#### Dot Plot (geom_dotplot)
+
+```{r}
+
+```
+
+#### Violin (geom_violin)
+
+```{r}
+
+```
+
+### 2.3 Kesikli X Kesikli Y
+
+```{r}
+
+```
+
+## 3.Grafik Bölme
+
+```{r}
+
+```
+
+## 4.Zaman Serisi Görselleştirme
+
+```{r}
+
+```
+
+## 5.Coklu,Zaman Serisi Gorselleştirme
+
+```{r}
+
+```
