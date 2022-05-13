@@ -1,0 +1,111 @@
+---
+title: "R Notebook"
+output:
+  html_notebook: default
+  pdf_document: default
+---
+
+# 1.MySQL ile çalışmak
+```{r}
+library(DBI)
+library(dplyr)
+library(dbplyr)
+library(ggplot2)
+install.packages("RMySQL")
+
+```
+
+## 1.1 Database Bağlantısı
+```{r}
+con <- DBI::dbConnect(RMySQL::MySQL(),
+                      host="localhost",
+                      user="root",
+                      password = "",
+                      dbname = "test_db")
+```
+
+```{r}
+copy_to(con,mpg,"mpg",temporary= FALSE)
+
+```
+
+
+## 1.2 Sorgu Gönderme
+
+```{r}
+dbGetQuery(con,"SELECT * FROM mpg limit 10")
+
+```
+
+
+**Daha karmaşık sql sorguları nasıl gönderilir**
+
+```{r}
+sql <- sprintf("SELECT * FROM mpg limit 10")
+
+dbGetQuery(con,sql)
+
+```
+
+##1.3 dplyr ile Sorgu Gönderme
+
+```{r}
+mpg_db <- tbl(con,"mpg")
+
+mpg_db %>%
+  select(model,year) %>%
+  summarise(ort = mean(dipl))
+
+```
+
+## 1.4 dplyr dan sql e kod çevirmek
+
+
+```{r}
+mpg_db %>%
+  select(model,year) %>%
+  summarise(ort = mean(dipl)) %>%
+  show_query()
+
+```
+
+
+#2. Buyuk Veri ile Calismak (spark) -> R ile alakalı bazı fonksiyonları spark üzerindeki dosyalarda kullanamayız
+
+```{r}
+install.packages("sparklyr")
+library(sparklyr)
+library(nycflights13)
+
+# spark_install()
+
+sc <- spark_connect(master = "local")
+
+copy_to(sc,nycflights13::flights,"flights_spark")
+
+src_tbls(sc)
+
+f_tbl <- copy_to(sc,nycflights13::flights,"flights_spark",overwrite = TRUE)
+
+```
+
+
+```{r}
+f_tbl %>% 
+  select(1:3)
+
+
+carriers <- f_tbl %>%
+              group_by(carrier) %>%
+              summarise(n=n(),
+                      ort = mean(dep_delay)) %>%
+              collect() 
+# Sparktan veriyi çekiyoruz
+  
+```
+
+**! Bazı ortamlarda çok büyük sayida veriler oluyor sparkı bu yüzden kullaniliyor**
+**! Spark üstünden çalışıyoruz ama R çalışma ortamı mantığıyla çalışıyor**
+**! büyük veri de özetleştiriyor sonra işlemleri yapıyoruz **
+
+
